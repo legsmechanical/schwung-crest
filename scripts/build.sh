@@ -41,15 +41,10 @@ if [ "${IN_DOCKER:-0}" = "1" ] || ! command -v docker >/dev/null 2>&1; then
 
     echo "Package: dist/${MODULE_ID}-module.tar.gz"
     echo "Done."
-
-    # ── Auto-deploy unless skipped ────────────────────────────────────────────
-    if [ "${SKIP_INSTALL:-0}" != "1" ]; then
-        "$SCRIPT_DIR/install.sh"
-    fi
     exit 0
 fi
 
-# ── Host: build inside Docker ────────────────────────────────────────────────
+# ── Host: build inside Docker, then deploy from host ────────────────────────
 if ! docker image inspect "$IMAGE_NAME" >/dev/null 2>&1; then
     echo "Building Docker image $IMAGE_NAME..."
     docker build -t "$IMAGE_NAME" -f "$SCRIPT_DIR/Dockerfile" "$REPO_ROOT"
@@ -60,6 +55,10 @@ docker run --rm \
     -u "$(id -u):$(id -g)" \
     -w /build \
     -e IN_DOCKER=1 \
-    -e SKIP_INSTALL="${SKIP_INSTALL:-0}" \
     "$IMAGE_NAME" \
     ./scripts/build.sh
+
+# Deploy from the host (has SSH keys and network access to Move)
+if [ "${SKIP_INSTALL:-0}" != "1" ]; then
+    "$SCRIPT_DIR/install.sh"
+fi
