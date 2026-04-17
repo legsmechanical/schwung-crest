@@ -1,0 +1,13 @@
+{
+  "id": "crest",
+  "name": "Crest",
+  "abbrev": "CRST",
+  "version": "0.1.0",
+  "api_version": 2,
+  "component_type": "sound_generator",
+  "capabilities": {
+    "audio_out": true,
+    "midi_in": true,
+    "chainable": true
+  }
+}
